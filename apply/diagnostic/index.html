@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>申请战略诊断 | shedatahk limited Strategic Office</title>
+  <link rel="stylesheet" href="../../assets/css/strategic-office.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand-mark" href="../../">
+          <span class="brand-kicker">Strategic Office</span>
+          <span class="brand-name">shedatahk limited</span>
+        </a>
+        <nav class="nav-links">
+          <a class="nav-link" href="../../">首页</a>
+          <a class="nav-link" href="../../books/">三书总览</a>
+          <a class="nav-link current" href="../../services/">服务与申请</a>
+          <a class="nav-link" href="../../membership/">会员体系</a>
+          <a class="nav-link" href="../../credentials/">资质与边界</a>
+          <a class="nav-link" href="../../payment/">支付与入驻</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Apply</span>
+        <h1>申请战略诊断</h1>
+        <p class="lead">
+          战略诊断是这套系统的统一入门产品。你不需要先讲一小时市场故事，只需要让我们知道：你现在的问题更接近哪一本书、哪一个层次。
+        </p>
+        <div class="form-note">
+          正确顺序：
+          先去 <a href="../../payment/"><strong>支付与入驻</strong></a> 页面确认公开价格并付款，
+          再回来填写这张表，把付款币种、付款金额和付款参考号一起提交。
+        </div>
+      </section>
+
+      <section class="section form-panel">
+        <div class="section-header">
+          <span class="eyebrow">最小字段</span>
+          <h2>先把问题放到对的层，不在聊天里反复猜。</h2>
+        </div>
+        <form data-office-form data-kind="diagnostic">
+          <div class="form-grid">
+            <div>
+              <label for="identity_type">身份类型</label>
+              <select id="identity_type" name="identity_type" required>
+                <option value="">请选择</option>
+                <option value="high-net-worth-individual">高净值个人 / 家庭</option>
+                <option value="founder">创业者 / 项目方</option>
+                <option value="investor">职业投资人 / 研究型客户</option>
+              </select>
+            </div>
+            <div>
+              <label for="applicant_name">姓名 / 称呼</label>
+              <input id="applicant_name" name="applicant_name" type="text" required>
+            </div>
+            <div>
+              <label for="email">邮箱</label>
+              <input id="email" name="email" type="email" required>
+            </div>
+            <div>
+              <label for="phone">WhatsApp / 微信 / 电话</label>
+              <input id="phone" name="phone" type="text" required>
+            </div>
+            <div>
+              <label for="primary_book">当前主要问题属于哪本书</label>
+              <select id="primary_book" name="primary_book" required>
+                <option value="">请选择</option>
+                <option value="asset-long-wave">《资产长波》</option>
+                <option value="portfolio-execution">《组合落地实战》</option>
+                <option value="timing-discipline">《买卖时机实战》</option>
+              </select>
+            </div>
+            <div>
+              <label for="urgency">紧迫度</label>
+              <select id="urgency" name="urgency" required>
+                <option value="">请选择</option>
+                <option value="this-week">本周必须推进</option>
+                <option value="this-month">本月内需要明确</option>
+                <option value="exploratory">仍在探索期</option>
+              </select>
+            </div>
+            <div>
+              <label for="budget_band">预算带</label>
+              <select id="budget_band" name="budget_band" required>
+                <option value="">请选择</option>
+                <option value="entry">先做入门层</option>
+                <option value="mid">可承接专项层</option>
+                <option value="high">可讨论长期顾问层</option>
+              </select>
+            </div>
+            <div>
+              <label for="preferred_contact">沟通方式偏好</label>
+              <select id="preferred_contact" name="preferred_contact" required>
+                <option value="">请选择</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="wechat">微信</option>
+                <option value="email">邮箱</option>
+              </select>
+            </div>
+            <div>
+              <label for="payment_currency">已付款币种</label>
+              <select id="payment_currency" name="payment_currency" required>
+                <option value="">请选择</option>
+                <option value="HKD">HKD</option>
+                <option value="CNY">CNY</option>
+              </select>
+            </div>
+            <div>
+              <label for="payment_amount">已付款金额</label>
+              <input id="payment_amount" name="payment_amount" type="text" placeholder="例如 HKD 8800" required>
+            </div>
+            <div class="full">
+              <label for="payment_reference">付款参考号 / 时间 / 截图备注</label>
+              <input id="payment_reference" name="payment_reference" type="text" placeholder="例如：2026-04-25 09:30 / 微信支付尾号 1234" required>
+            </div>
+            <div class="full">
+              <label for="background">当前资产 / 项目背景</label>
+              <textarea id="background" name="background" placeholder="请用 5-10 句说明你的背景、当前结构、想解决的问题。"></textarea>
+            </div>
+            <div class="full">
+              <label for="application_reason">你为什么现在要做这次诊断</label>
+              <textarea id="application_reason" name="application_reason" placeholder="例如：长期判断混乱、结构落地卡住、动作纪律失控。"></textarea>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button class="button" type="submit">提交战略诊断申请</button>
+            <a class="button-ghost" href="../../payment/">还没付款？先去付款页</a>
+          </div>
+          <div class="status-note" data-form-status>
+            申请会提交到当前配置的后台 API。如果后台暂时未连通，浏览器会先保留草稿。正式环境下，这里会进入审核与邮件确权队列。
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>Apply / Strategic Diagnostic</div>
+        <div>先把问题归位，再决定要不要进入长期关系。</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    window.SITE_ROOT = "../../";
+  </script>
+  <script src="../../assets/js/runtime-config.js"></script>
+  <script src="../../assets/js/forms.js"></script>
+</body>
+</html>

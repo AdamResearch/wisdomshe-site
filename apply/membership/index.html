@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>申请制会员 | shedatahk limited Strategic Office</title>
+  <link rel="stylesheet" href="../../assets/css/strategic-office.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand-mark" href="../../">
+          <span class="brand-kicker">Strategic Office</span>
+          <span class="brand-name">shedatahk limited</span>
+        </a>
+        <nav class="nav-links">
+          <a class="nav-link" href="../../">首页</a>
+          <a class="nav-link" href="../../books/">三书总览</a>
+          <a class="nav-link" href="../../services/">服务与申请</a>
+          <a class="nav-link current" href="../../membership/">会员体系</a>
+          <a class="nav-link" href="../../credentials/">资质与边界</a>
+          <a class="nav-link" href="../../payment/">支付与入驻</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Apply</span>
+        <h1>申请制会员</h1>
+        <p class="lead">
+          会员不是大众订阅区，而是持续接收三本书修订成果的层。这里先筛选适配度，再开通固定价会员。
+        </p>
+        <div class="form-note">
+          会员和战略诊断不同：
+          这里是 <strong>先申请、后审核、再付款</strong>。
+          所以如果你只是想直接付钱，请不要先扫会员码，先把申请交上来。
+        </div>
+      </section>
+
+      <section class="section form-panel">
+        <div class="section-header">
+          <span class="eyebrow">会员申请字段</span>
+          <h2>告诉我们你关注什么、读到多深、为什么适合进这个层。</h2>
+        </div>
+        <form data-office-form data-kind="membership">
+          <div class="form-grid">
+            <div>
+              <label for="applicant_name">姓名 / 称呼</label>
+              <input id="applicant_name" name="applicant_name" type="text" required>
+            </div>
+            <div>
+              <label for="email">邮箱</label>
+              <input id="email" name="email" type="email" required>
+            </div>
+            <div>
+              <label for="phone">WhatsApp / 微信 / 电话</label>
+              <input id="phone" name="phone" type="text" required>
+            </div>
+            <div>
+              <label for="preferred_contact">沟通方式偏好</label>
+              <select id="preferred_contact" name="preferred_contact" required>
+                <option value="">请选择</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="wechat">微信</option>
+                <option value="email">邮箱</option>
+              </select>
+            </div>
+            <div>
+              <label for="primary_book">当前最关注哪一本书</label>
+              <select id="primary_book" name="primary_book" required>
+                <option value="">请选择</option>
+                <option value="asset-long-wave">《资产长波》</option>
+                <option value="portfolio-execution">《组合落地实战》</option>
+                <option value="timing-discipline">《买卖时机实战》</option>
+              </select>
+            </div>
+            <div>
+              <label for="cadence">希望接收更新的频率</label>
+              <select id="cadence" name="cadence" required>
+                <option value="">请选择</option>
+                <option value="monthly">每月</option>
+                <option value="quarterly">每季度</option>
+                <option value="project-based">按主题/项目</option>
+              </select>
+            </div>
+            <div class="full">
+              <label for="background">背景</label>
+              <textarea id="background" name="background" placeholder="请说明你的背景、目前所在阶段以及你对三本书框架的接受程度。"></textarea>
+            </div>
+            <div class="full">
+              <label for="application_reason">申请理由</label>
+              <textarea id="application_reason" name="application_reason" placeholder="你为什么希望进入会员层，而不是只停留在公开层？"></textarea>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button class="button" type="submit">提交会员申请</button>
+            <a class="button-ghost" href="../../payment/">先看会员固定价和付款规则</a>
+          </div>
+          <div class="status-note" data-form-status>
+            申请会提交到当前配置的后台 API。审核通过后，才会进入付款和正式开通流程。
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>Apply / Membership</div>
+        <div>会员先筛选，再开通，不做无差别开放。</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    window.SITE_ROOT = "../../";
+  </script>
+  <script src="../../assets/js/runtime-config.js"></script>
+  <script src="../../assets/js/forms.js"></script>
+</body>
+</html>
