@@ -29,7 +29,12 @@
 
 ### 根域
 
-把 `wisdomshe.com` 指向 GitHub Pages 官方 A 记录：
+先删除当前旧 A 记录：
+
+- `115.190.218.50`
+- `43.139.254.27`
+
+再把 `wisdomshe.com` 指向 GitHub Pages 官方 A 记录：
 
 - `185.199.108.153`
 - `185.199.109.153`
@@ -38,7 +43,13 @@
 
 ### www
 
-- `www.wisdomshe.com CNAME wisdomshe.com`
+- 先删除旧 CNAME：`5j9r9s2x9x.coze-dns-01.com`
+- 新增：`www.wisdomshe.com CNAME AdamResearch.github.io`
+
+### admin
+
+- `admin.wisdomshe.com` 不指向 GitHub Pages
+- 该子域应在后台 Railway 部署完成后，单独指向 Railway 分配的默认域名
 
 ## 上线后检查
 
