@@ -26,8 +26,8 @@
 ## 目标结构
 
 - `https://wisdomshe.com/`
-- `https://wisdomshe.com/industry/`
-- `https://wisdomshe.com/portfolio/`
+- `https://wisdomshe.com/industry/`（快捷入口，最终收口到同一张公开首页）
+- `https://wisdomshe.com/portfolio/`（快捷入口，最终收口到同一张公开首页）
 - `https://wisdomshe.com/admin/`
 - `https://admin.wisdomshe.com/login`
 
@@ -106,8 +106,8 @@ PAYMENT_LINK_MEMBERSHIP_CNY=
 ### 前台
 
 - `https://wisdomshe.com/` 正常打开
-- `https://wisdomshe.com/industry/` 正常打开
-- `https://wisdomshe.com/portfolio/` 正常打开
+- `https://wisdomshe.com/industry/` 正常打开，并切到首页中的医药项目区
+- `https://wisdomshe.com/portfolio/` 正常打开，并切到首页中的投资组合管理区
 - `https://wisdomshe.com/admin/` 自动引导到后台登录入口
 
 ### 后台

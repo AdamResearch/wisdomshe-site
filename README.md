@@ -1,19 +1,19 @@
 # shedatahk limited 官网系统
 
-这套站点现在按 `一个公司总首页 + 两条客户业务线 + 一个共享后台` 组织。
+这套站点现在按 `一个公司总首页 + 同页切换的两条客户业务线 + 一个共享后台` 组织。
 
 ## 对外结构
 
 - `/`
-  公司总首页。先讲 `shedatahk limited`、负责人/董事视角、资历与证书，再自然分流到两条业务线。
+  公司总首页。先讲 `shedatahk limited`、团队与相关资料，再在同一张公开单页里切换两条业务线与后台入口。
 - `/industry/`
-  实业相关的专利律师、高级知识产权与 IP 专家服务。
+  医药项目与实业 IP 服务的快捷入口。会收口到首页中的对应区块。
 - `/portfolio/`
-  投资组合管理业务线，并以香港地产为当前主要标的。
+  投资组合管理业务线的快捷入口。会收口到首页中的对应区块，并以香港功能地产为当前主要标的。
 - `/admin/`
   后台入口页。会跳转或指向真正的内部管理后台登录地址。
 
-旧的 `services / contact / about / methods / books / membership / payment / credentials` 等路径仍保留地址，但会继续收口到这三张主页面。
+旧的 `services / contact / about / methods / books / membership / payment / credentials` 等路径仍保留地址，但会继续收口到公司总首页的具体区块。
 
 ## 共享后台
 
