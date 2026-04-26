@@ -3,8 +3,8 @@
 ## 目标结构
 
 - `https://wisdomshe.com/`
-- `https://wisdomshe.com/industry/`（快捷入口，最终收口到同一张首页）
-- `https://wisdomshe.com/portfolio/`（快捷入口，最终收口到同一张首页）
+- `https://wisdomshe.com/industry/`（快捷入口，最终切到首页里的实业 IP 标签）
+- `https://wisdomshe.com/portfolio/`（快捷入口，最终切到首页里的投资组合管理标签）
 - `https://wisdomshe.com/admin/`
 
 ## 仓库要求
@@ -54,8 +54,8 @@
 ## 上线后检查
 
 - `https://wisdomshe.com/` 正常打开
-- `https://wisdomshe.com/industry/` 正常打开，并跳到首页中的医药项目区
-- `https://wisdomshe.com/portfolio/` 正常打开，并跳到首页中的投资组合管理区
+- `https://wisdomshe.com/industry/` 正常打开，并切到首页中的实业 IP / 医药项目标签
+- `https://wisdomshe.com/portfolio/` 正常打开，并切到首页中的投资组合管理标签
 - `https://wisdomshe.com/admin/` 能跳到 `https://admin.wisdomshe.com/login`
 - `https://wisdomshe.com/robots.txt` 可访问
 - `https://wisdomshe.com/sitemap.xml` 可访问

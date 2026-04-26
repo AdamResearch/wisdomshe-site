@@ -26,8 +26,8 @@
 ## 目标结构
 
 - `https://wisdomshe.com/`
-- `https://wisdomshe.com/industry/`（快捷入口，最终收口到同一张公开首页）
-- `https://wisdomshe.com/portfolio/`（快捷入口，最终收口到同一张公开首页）
+- `https://wisdomshe.com/industry/`（快捷入口，最终切到首页里的实业 IP 标签）
+- `https://wisdomshe.com/portfolio/`（快捷入口，最终切到首页里的投资组合管理标签）
 - `https://wisdomshe.com/admin/`
 - `https://admin.wisdomshe.com/login`
 
@@ -106,8 +106,8 @@ PAYMENT_LINK_MEMBERSHIP_CNY=
 ### 前台
 
 - `https://wisdomshe.com/` 正常打开
-- `https://wisdomshe.com/industry/` 正常打开，并切到首页中的医药项目区
-- `https://wisdomshe.com/portfolio/` 正常打开，并切到首页中的投资组合管理区
+- `https://wisdomshe.com/industry/` 正常打开，并切到首页中的实业 IP / 医药项目标签
+- `https://wisdomshe.com/portfolio/` 正常打开，并切到首页中的投资组合管理标签
 - `https://wisdomshe.com/admin/` 自动引导到后台登录入口
 
 ### 后台
@@ -121,3 +121,7 @@ PAYMENT_LINK_MEMBERSHIP_CNY=
 
 - 这次不需要购买域名的主账号密码才能推进；只需要 DNS 解析修改权和 Railway 部署权。
 - 如果技术部不愿共享主账号，按本交接单代改即可。
+- 如果改走腾讯云子账号登录路径，除了子账号用户名和密码外，通常还需要：
+  - `子账号登录名@主账号ID`
+  - 或主账号生成的快捷登录链接
+  否则通常无法独立进入控制台完成 DNS 修改。
