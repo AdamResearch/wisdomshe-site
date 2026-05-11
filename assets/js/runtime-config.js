@@ -1,4 +1,4 @@
 ﻿window.WISDOMSHE_CONFIG = {
   apiOrigin: "",
-  adminOrigin: ""
+  adminOrigin: "http://127.0.0.1:8801"
 };
