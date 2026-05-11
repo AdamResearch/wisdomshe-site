@@ -1,4 +1,4 @@
-*
+﻿*
 !.gitignore
 !.github/
 !.github/workflows/
@@ -6,8 +6,6 @@
 !.nojekyll
 !404.html
 !CNAME
-!DEPLOYMENT.md
-!TECH_TEAM_HANDOFF.md
 !README.md
 !index.html
 !about/
