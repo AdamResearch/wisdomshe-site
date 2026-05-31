@@ -28,6 +28,10 @@
     (function () {
       const cfg = window.WISDOMSHE_CONFIG || {};
       const gate = cfg.adminGate || {};
+      const apiOrigin = (cfg.apiOrigin || "").replace(/\/$/, "");
+      const sameOriginApi = cfg.sameOriginApi !== false && window.location.protocol.startsWith("http");
+      const apiBase = apiOrigin || (sameOriginApi ? window.location.origin : "");
+      const requestTimeoutMs = Number(cfg.requestTimeoutMs || 8000);
       const sessionKey = "wisdomshe_admin_gate_ok";
       const form = document.getElementById("loginForm");
       const statusNode = document.getElementById("loginStatus");
@@ -43,10 +47,38 @@
         return;
       }
 
-      form.addEventListener("submit", function (event) {
+      async function serverLogin(username, password) {
+        if (!apiBase) return false;
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
+        try {
+          const response = await fetch(`${apiBase}/api/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            signal: controller.signal,
+            body: JSON.stringify({ username, password })
+          });
+          const result = await response.json().catch(() => ({}));
+          return response.ok && result.success;
+        } catch {
+          return false;
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
+      }
+
+      form.addEventListener("submit", async function (event) {
         event.preventDefault();
         const username = (document.getElementById("username").value || "").trim();
         const password = (document.getElementById("password").value || "").trim();
+        statusNode.textContent = "正在登录...";
+        statusNode.className = "form-status";
+        if (await serverLogin(username || gate.username, password)) {
+          sessionStorage.setItem(sessionKey, "1");
+          window.location.href = "index.html";
+          return;
+        }
         if ((!username || username === gate.username) && password === gate.password) {
           sessionStorage.setItem(sessionKey, "1");
           window.location.href = "index.html";

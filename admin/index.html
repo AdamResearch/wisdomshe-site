@@ -38,13 +38,13 @@
       <section class="section-card">
         <span class="eyebrow">管理后台</span>
         <h1 style="font-size:42px;">提交需求管理</h1>
-        <p class="lead">纯 Worker 模式：读取/修改/删除均写 GitHub JSON。</p>
+        <p class="lead">客户提交需求后在这里处理：优先读取服务端后台，必要时兜底读取 Worker 数据源。</p>
 
         <div class="admin-toolbar">
           <button class="button-ghost" id="logoutBtn" type="button">退出登录</button>
           <a class="button" href="./">刷新页面</a>
           <a class="button-ghost" href="../">返回官网</a>
-          <span class="pill info">数据源：Worker</span>
+          <span class="pill info" id="dataSourcePill">数据源：正在检测</span>
         </div>
 
         <div class="admin-summary" id="summary"></div>
@@ -85,21 +85,48 @@
   <script>
     (function () {
       const cfg = window.WISDOMSHE_CONFIG || {};
+      const apiOrigin = (cfg.apiOrigin || "").replace(/\/$/, "");
+      const sameOriginApi = cfg.sameOriginApi !== false && window.location.protocol.startsWith("http");
+      const apiBase = apiOrigin || (sameOriginApi ? window.location.origin : "");
+      const requestTimeoutMs = Number(cfg.requestTimeoutMs || 8000);
       const gate = cfg.adminGate || {};
       const sessionKey = "wisdomshe_admin_gate_ok";
       const gateEnabled = gate.enabled !== false;
-      if (gateEnabled && sessionStorage.getItem(sessionKey) !== "1") {
-        window.location.href = "login.html";
+      async function checkServerSession() {
+        if (!apiBase) return false;
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
+        try {
+          const response = await fetch(`${apiBase}/api/admin/me`, {
+            credentials: "include",
+            signal: controller.signal
+          });
+          const result = await response.json().catch(() => ({}));
+          return response.ok && result.success;
+        } catch {
+          return false;
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
       }
+      window.wisdomsheAdminGateReady = (async function () {
+        if (!gateEnabled || sessionStorage.getItem(sessionKey) === "1" || await checkServerSession()) return true;
+        window.location.href = "login.html";
+        return false;
+      })();
     })();
   </script>
   <script>
     (function () {
       const cfg = window.WISDOMSHE_CONFIG || {};
+      const apiOrigin = (cfg.apiOrigin || "").replace(/\/$/, "");
+      const sameOriginApi = cfg.sameOriginApi !== false && window.location.protocol.startsWith("http");
+      const apiBase = apiOrigin || (sameOriginApi ? window.location.origin : "");
       const worker = (cfg.workerEndpoint || "").replace(/\/$/, "");
       const requestTimeoutMs = Number(cfg.requestTimeoutMs || 8000);
       const requestBody = document.getElementById("requestBody");
       const summary = document.getElementById("summary");
+      const dataSourcePill = document.getElementById("dataSourcePill");
       const searchInput = document.getElementById("searchInput");
       const statusFilter = document.getElementById("statusFilter");
       const lineFilter = document.getElementById("lineFilter");
@@ -116,32 +143,60 @@
       function fv(r,keys){const p=payload(r);for(const k of keys){if(r[k]!=null&&String(r[k]).trim()!=="")return r[k];if(p[k]!=null&&String(p[k]).trim()!=="")return p[k]}return "—"}
       function st(r){const p=payload(r);return [r.name,r.phone,r.email,r.current_issue,r.service_interest,r.business_line,p.budget_band].filter(Boolean).join(" ").toLowerCase()}
 
-      async function apiGet(){
+      async function fetchJson(url, options){
         const controller = new AbortController();
         const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
-        const res=await fetch(`${worker}/applications`, { signal: controller.signal }).finally(() => window.clearTimeout(timeoutId));
+        const res=await fetch(url, Object.assign({ credentials: "include", signal: controller.signal }, options || {})).finally(() => window.clearTimeout(timeoutId));
         const j=await res.json();
         if(!res.ok||!j.success) throw new Error(j.error||`HTTP ${res.status}`);
-        return j.items||[];
+        return j;
       }
-      async function apiPatch(id,status){
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
-        const res=await fetch(`${worker}/applications/${id}`,{
+      async function apiGet(){
+        const errors = [];
+        if (apiBase) {
+          try {
+            const j = await fetchJson(`${apiBase}/api/applications`);
+            dataSourcePill.textContent = "数据源：服务端后台";
+            return { items: j.items || [], source: "api" };
+          } catch (e) {
+            errors.push(`服务端后台：${e.name === "AbortError" ? "连接超时" : e.message}`);
+          }
+        }
+        if (worker) {
+          try {
+            const j = await fetchJson(`${worker}/applications`, { credentials: "omit" });
+            dataSourcePill.textContent = "数据源：Worker";
+            return { items: j.items || [], source: "worker" };
+          } catch (e) {
+            errors.push(`Worker：${e.name === "AbortError" ? "连接超时" : e.message}`);
+          }
+        }
+        throw new Error(errors.join("；") || "后台数据源未配置");
+      }
+      async function apiPatch(id,status,source){
+        if (source === "api" && apiBase) {
+          await fetchJson(`${apiBase}/api/applications/${id}`, {
+            method:"PATCH",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({status})
+          });
+          return;
+        }
+        if (!worker) throw new Error("Worker 未配置");
+        await fetchJson(`${worker}/applications/${id}`, {
           method:"PATCH",
           headers:{"Content-Type":"application/json"},
-          signal: controller.signal,
+          credentials: "omit",
           body:JSON.stringify({status})
-        }).finally(() => window.clearTimeout(timeoutId));
-        const j=await res.json();
-        if(!res.ok||!j.success) throw new Error(j.error||`HTTP ${res.status}`);
+        });
       }
-      async function apiDelete(id){
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
-        const res=await fetch(`${worker}/applications/${id}`,{method:"DELETE", signal: controller.signal}).finally(() => window.clearTimeout(timeoutId));
-        const j=await res.json();
-        if(!res.ok||!j.success) throw new Error(j.error||`HTTP ${res.status}`);
+      async function apiDelete(id,source){
+        if (source === "api" && apiBase) {
+          await fetchJson(`${apiBase}/api/applications/${id}`, { method:"DELETE" });
+          return;
+        }
+        if (!worker) throw new Error("Worker 未配置");
+        await fetchJson(`${worker}/applications/${id}`, { method:"DELETE", credentials: "omit" });
       }
 
       function renderSummary(items){
@@ -166,7 +221,7 @@
         `;
       }
 
-      function renderTable(items){
+      function renderTable(items,source){
         if(!items.length){
           requestBody.innerHTML='<tr><td colspan="9" class="muted">没有匹配的需求记录。</td></tr>';
           return;
@@ -206,7 +261,7 @@
           btn.addEventListener("click", async ()=>{
             const id=btn.getAttribute("data-save-id");
             const sel=requestBody.querySelector(`[data-status-id="${id}"]`);
-            try{await apiPatch(id, sel.value); await refresh();}catch(e){alert("状态更新失败: "+e.message)}
+            try{await apiPatch(id, sel.value, source); await refresh();}catch(e){alert("状态更新失败: "+e.message)}
           });
         });
 
@@ -214,7 +269,7 @@
           btn.addEventListener("click", async ()=>{
             const id=btn.getAttribute("data-delete-id");
             if(!confirm("确定删除这条记录吗？")) return;
-            try{await apiDelete(id); await refresh();}catch(e){alert("删除失败: "+e.message)}
+            try{await apiDelete(id, source); await refresh();}catch(e){alert("删除失败: "+e.message)}
           });
         });
 
@@ -240,6 +295,7 @@
         });
       }
 
+      let currentSource = "";
       function applyFilters(){
         const kw=searchInput.value.trim().toLowerCase();
         const stv=statusFilter.value;
@@ -251,21 +307,30 @@
           return mk&&ms&&ml;
         });
         renderSummary(filtered);
-        renderTable(filtered);
+        renderTable(filtered,currentSource);
       }
 
       async function refresh(){
         try{
-          if(!worker) throw new Error("workerEndpoint 未配置");
-          requests=await apiGet();
+          const gateOk = await (window.wisdomsheAdminGateReady || Promise.resolve(true));
+          if (!gateOk) return;
+          const result = await apiGet();
+          requests=result.items;
+          currentSource=result.source;
           applyFilters();
         }catch(e){
-          requestBody.innerHTML=`<tr><td colspan="9" class="muted">加载失败：${esc(e.name === "AbortError" ? "后台数据源连接超时，请检查 workerEndpoint / api.wisdomshe.com 绑定" : e.message)}</td></tr>`;
+          dataSourcePill.textContent = "数据源：连接失败";
+          requestBody.innerHTML=`<tr><td colspan="9" class="muted">加载失败：${esc(e.name === "AbortError" ? "后台数据源连接超时，请检查 apiOrigin / workerEndpoint 绑定" : e.message)}</td></tr>`;
           summary.innerHTML="";
         }
       }
 
-      logoutBtn?.addEventListener("click", ()=>{
+      logoutBtn?.addEventListener("click", async ()=>{
+        if (apiBase) {
+          try {
+            await fetchJson(`${apiBase}/api/admin/logout`, { method: "POST" });
+          } catch {}
+        }
         sessionStorage.removeItem("wisdomshe_admin_gate_ok");
         window.location.href="login.html";
       });

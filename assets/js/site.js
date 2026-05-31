@@ -3,6 +3,11 @@
   const apiOrigin = (config.apiOrigin || "").replace(/\/$/, "");
   const workerEndpoint = (config.workerEndpoint || "").replace(/\/$/, "");
   const adminOrigin = (config.adminOrigin || "").replace(/\/$/, "");
+  const sameOriginApi = config.sameOriginApi !== false && window.location.protocol.startsWith("http");
+  const apiBases = Array.from(new Set([
+    apiOrigin,
+    sameOriginApi ? window.location.origin : ""
+  ].filter(Boolean)));
   const requestTimeoutMs = Number(config.requestTimeoutMs || 8000);
   const lineInput = document.getElementById("business-line-input");
   const lineSwitches = document.querySelectorAll("[data-line-switch]");
@@ -59,7 +64,7 @@
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: apiOrigin && url.startsWith(apiOrigin) ? "include" : "same-origin",
+      credentials: "include",
       signal: controller.signal,
       body: JSON.stringify(payload)
     }).finally(() => window.clearTimeout(timeoutId));
@@ -70,12 +75,12 @@
 
   async function submitToBackends(payload) {
     const errors = [];
-    if (apiOrigin) {
+    for (const base of apiBases) {
       try {
-        const result = await postJson(`${apiOrigin}/api/applications`, payload);
+        const result = await postJson(`${base}/api/applications`, payload);
         return { source: "admin", code: result.application?.code || result.code || "已记录" };
       } catch (error) {
-        errors.push(`admin: ${error.message}`);
+        errors.push(`admin(${base}): ${error.name === "AbortError" ? "连接超时" : error.message}`);
       }
     }
     if (workerEndpoint) {

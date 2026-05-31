@@ -129,7 +129,8 @@ def row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
 
 def bootstrap_storage() -> None:
     init_db()
-    seed_if_empty()
+    if os.environ.get('WISDOMSHE_SEED_DEMO') == '1':
+        seed_if_empty()
 
 
 def get_token() -> str | None:
@@ -154,6 +155,26 @@ def public_index():
 @app.get('/assets/<path:filename>')
 def assets(filename: str):
     return send_from_directory(BASE_DIR / 'assets', filename)
+
+
+@app.get('/industry/')
+def industry_page():
+    return send_from_directory(BASE_DIR / 'industry', 'index.html')
+
+
+@app.get('/portfolio/')
+def portfolio_page():
+    return send_from_directory(BASE_DIR / 'portfolio', 'index.html')
+
+
+@app.get('/robots.txt')
+def robots():
+    return send_from_directory(BASE_DIR, 'robots.txt')
+
+
+@app.get('/sitemap.xml')
+def sitemap():
+    return send_from_directory(BASE_DIR, 'sitemap.xml')
 
 
 @app.get('/admin/')
@@ -297,7 +318,9 @@ def delete_application(application_id: int):
     return jsonify({'success': True})
 
 
+bootstrap_storage()
+
+
 if __name__ == '__main__':
-    bootstrap_storage()
     port = int(os.environ.get('PORT', '8801'))
     app.run(host='127.0.0.1', port=port, debug=True)
