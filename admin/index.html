@@ -97,6 +97,7 @@
     (function () {
       const cfg = window.WISDOMSHE_CONFIG || {};
       const worker = (cfg.workerEndpoint || "").replace(/\/$/, "");
+      const requestTimeoutMs = Number(cfg.requestTimeoutMs || 8000);
       const requestBody = document.getElementById("requestBody");
       const summary = document.getElementById("summary");
       const searchInput = document.getElementById("searchInput");
@@ -116,22 +117,29 @@
       function st(r){const p=payload(r);return [r.name,r.phone,r.email,r.current_issue,r.service_interest,r.business_line,p.budget_band].filter(Boolean).join(" ").toLowerCase()}
 
       async function apiGet(){
-        const res=await fetch(`${worker}/applications`);
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
+        const res=await fetch(`${worker}/applications`, { signal: controller.signal }).finally(() => window.clearTimeout(timeoutId));
         const j=await res.json();
         if(!res.ok||!j.success) throw new Error(j.error||`HTTP ${res.status}`);
         return j.items||[];
       }
       async function apiPatch(id,status){
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
         const res=await fetch(`${worker}/applications/${id}`,{
           method:"PATCH",
           headers:{"Content-Type":"application/json"},
+          signal: controller.signal,
           body:JSON.stringify({status})
-        });
+        }).finally(() => window.clearTimeout(timeoutId));
         const j=await res.json();
         if(!res.ok||!j.success) throw new Error(j.error||`HTTP ${res.status}`);
       }
       async function apiDelete(id){
-        const res=await fetch(`${worker}/applications/${id}`,{method:"DELETE"});
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
+        const res=await fetch(`${worker}/applications/${id}`,{method:"DELETE", signal: controller.signal}).finally(() => window.clearTimeout(timeoutId));
         const j=await res.json();
         if(!res.ok||!j.success) throw new Error(j.error||`HTTP ${res.status}`);
       }
@@ -252,7 +260,7 @@
           requests=await apiGet();
           applyFilters();
         }catch(e){
-          requestBody.innerHTML=`<tr><td colspan="9" class="muted">加载失败：${esc(e.message)}</td></tr>`;
+          requestBody.innerHTML=`<tr><td colspan="9" class="muted">加载失败：${esc(e.name === "AbortError" ? "后台数据源连接超时，请检查 workerEndpoint / api.wisdomshe.com 绑定" : e.message)}</td></tr>`;
           summary.innerHTML="";
         }
       }

@@ -3,6 +3,7 @@
   const apiOrigin = (config.apiOrigin || "").replace(/\/$/, "");
   const workerEndpoint = (config.workerEndpoint || "").replace(/\/$/, "");
   const adminOrigin = (config.adminOrigin || "").replace(/\/$/, "");
+  const requestTimeoutMs = Number(config.requestTimeoutMs || 8000);
   const lineInput = document.getElementById("business-line-input");
   const lineSwitches = document.querySelectorAll("[data-line-switch]");
   const tabButtons = document.querySelectorAll("[data-business-tab]");
@@ -53,12 +54,15 @@
   }
 
   async function postJson(url, payload) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMs);
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: url.startsWith(apiOrigin) ? "include" : "same-origin",
+      credentials: apiOrigin && url.startsWith(apiOrigin) ? "include" : "same-origin",
+      signal: controller.signal,
       body: JSON.stringify(payload)
-    });
+    }).finally(() => window.clearTimeout(timeoutId));
     const result = await response.json().catch(() => ({}));
     if (!response.ok || !result.success) throw new Error(result.error || `HTTP ${response.status}`);
     return result;
