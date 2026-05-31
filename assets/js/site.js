@@ -1,7 +1,8 @@
-﻿(function () {
+(function () {
   const config = window.WISDOMSHE_CONFIG || {};
-  const apiOrigin = config.apiOrigin || "";
-  const adminOrigin = config.adminOrigin || apiOrigin;
+  const apiOrigin = (config.apiOrigin || "").replace(/\/$/, "");
+  const workerEndpoint = (config.workerEndpoint || "").replace(/\/$/, "");
+  const adminOrigin = (config.adminOrigin || "").replace(/\/$/, "");
   const lineInput = document.getElementById("business-line-input");
   const lineSwitches = document.querySelectorAll("[data-line-switch]");
   const tabButtons = document.querySelectorAll("[data-business-tab]");
@@ -31,19 +32,6 @@
     return "industry";
   }
 
-  lineSwitches.forEach((button) => button.addEventListener("click", () => setLine(button.dataset.lineSwitch)));
-  tabButtons.forEach((button) => button.addEventListener("click", () => setLine(button.dataset.businessTab)));
-  document.querySelectorAll("[data-jump-line]").forEach((node) => {
-    node.addEventListener("click", () => setLine(node.dataset.jumpLine));
-  });
-  window.addEventListener("hashchange", () => setLine(lineFromHash()));
-  setLine(lineFromHash());
-  window.addEventListener("load", () => {
-    if (window.location.hash === "#portfolio-line" || window.location.hash === "#industry-line") {
-      document.getElementById("business-intro")?.scrollIntoView({ block: "start" });
-    }
-  });
-
   function setStatus(message, kind) {
     if (!statusNode) return;
     statusNode.textContent = message;
@@ -64,6 +52,52 @@
     return "mailto:adam@wisdomshe.com?subject=" + subject + "&body=" + body;
   }
 
+  async function postJson(url, payload) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: url.startsWith(apiOrigin) ? "include" : "same-origin",
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.success) throw new Error(result.error || `HTTP ${response.status}`);
+    return result;
+  }
+
+  async function submitToBackends(payload) {
+    const errors = [];
+    if (apiOrigin) {
+      try {
+        const result = await postJson(`${apiOrigin}/api/applications`, payload);
+        return { source: "admin", code: result.application?.code || result.code || "已记录" };
+      } catch (error) {
+        errors.push(`admin: ${error.message}`);
+      }
+    }
+    if (workerEndpoint) {
+      try {
+        const result = await postJson(`${workerEndpoint}/submit`, payload);
+        return { source: "worker", code: result.application?.code || result.code || "已记录" };
+      } catch (error) {
+        errors.push(`worker: ${error.message}`);
+      }
+    }
+    throw new Error(errors.join("；") || "后台未配置");
+  }
+
+  lineSwitches.forEach((button) => button.addEventListener("click", () => setLine(button.dataset.lineSwitch)));
+  tabButtons.forEach((button) => button.addEventListener("click", () => setLine(button.dataset.businessTab)));
+  document.querySelectorAll("[data-jump-line]").forEach((node) => {
+    node.addEventListener("click", () => setLine(node.dataset.jumpLine));
+  });
+  window.addEventListener("hashchange", () => setLine(lineFromHash()));
+  setLine(lineFromHash());
+  window.addEventListener("load", () => {
+    if (window.location.hash === "#portfolio-line" || window.location.hash === "#industry-line") {
+      document.getElementById("business-intro")?.scrollIntoView({ block: "start" });
+    }
+  });
+
   if (form) {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -72,48 +106,42 @@
       const budgetBand = document.getElementById("budget-band").value.trim();
       const currentIssue = document.getElementById("current-issue").value.trim();
       const businessLine = lineInput.value || "industry";
+
       if (!applicantName || !contactMethod || !currentIssue) {
         setStatus("请至少填写称呼、联系方式和问题说明。", "is-error");
         return;
       }
-      if (!apiOrigin) {
-        setStatus("当前后台未配置，提交入口会转为邮件。", "is-error");
-        window.location.href = buildFallback(contactMethod, budgetBand, currentIssue, businessLine);
-        return;
-      }
+
       const payload = {
         kind: businessLine === "capital" ? "portfolio" : "diagnostic",
         name: applicantName,
+        applicant_name: applicantName,
         phone: contactMethod,
+        contact_method: contactMethod,
         email: contactMethod.includes("@") ? contactMethod : "",
         company: "",
         budget_band: budgetBand,
         business_line: businessLine,
         current_issue: currentIssue,
         service_interest: currentIssue,
-        source_page: window.location.pathname,
+        source_page: window.location.pathname + window.location.hash,
         project_stage: "website-intake"
       };
-        setStatus("正在提交到公司共享后台。", "");
+
+      setStatus("正在提交到公司后台。", "");
       try {
-        const response = await fetch(`${apiOrigin}/api/applications`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.error || `HTTP ${response.status}`);
-        setStatus(`需求已进入共享后台，编号 ${result.application.code}。`, "is-success");
+        const result = await submitToBackends(payload);
+        setStatus(`需求已进入后台，编号 ${result.code}。`, "is-success");
         form.reset();
         setLine(businessLine);
       } catch (error) {
-        setStatus(`提交失败，已转为邮件方案。`, "is-error");
+        setStatus("后台暂时未接通，已转为邮件方案。", "is-error");
         window.location.href = buildFallback(contactMethod, budgetBand, currentIssue, businessLine);
       }
     });
   }
 
   document.querySelectorAll(".nav-link-live-admin").forEach((node) => {
-    node.setAttribute("href", adminOrigin ? adminOrigin.replace(/\/$/, "") + "/login" : "admin/");
+    node.setAttribute("href", adminOrigin ? `${adminOrigin}/login` : "admin/");
   });
 })();
