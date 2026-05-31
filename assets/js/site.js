@@ -25,12 +25,24 @@
     });
   }
 
+  function lineFromHash() {
+    const hash = window.location.hash;
+    if (hash === "#portfolio" || hash === "#portfolio-line" || hash === "#capital") return "capital";
+    return "industry";
+  }
+
   lineSwitches.forEach((button) => button.addEventListener("click", () => setLine(button.dataset.lineSwitch)));
-  tabButtons.forEach((button) => button.addEventListener("click", () => {
-    setLine(button.dataset.businessTab);
-    document.getElementById("intake-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
-  setLine(window.location.hash === "#portfolio" || window.location.hash === "#portfolio-line" ? "capital" : "industry");
+  tabButtons.forEach((button) => button.addEventListener("click", () => setLine(button.dataset.businessTab)));
+  document.querySelectorAll("[data-jump-line]").forEach((node) => {
+    node.addEventListener("click", () => setLine(node.dataset.jumpLine));
+  });
+  window.addEventListener("hashchange", () => setLine(lineFromHash()));
+  setLine(lineFromHash());
+  window.addEventListener("load", () => {
+    if (window.location.hash === "#portfolio-line" || window.location.hash === "#industry-line") {
+      document.getElementById("business-intro")?.scrollIntoView({ block: "start" });
+    }
+  });
 
   function setStatus(message, kind) {
     if (!statusNode) return;
@@ -65,7 +77,7 @@
         return;
       }
       if (!apiOrigin) {
-        setStatus("当前为 GitHub Pages 静态版，提交入口会转为邮件。", "is-error");
+        setStatus("当前后台未配置，提交入口会转为邮件。", "is-error");
         window.location.href = buildFallback(contactMethod, budgetBand, currentIssue, businessLine);
         return;
       }
@@ -82,7 +94,7 @@
         source_page: window.location.pathname,
         project_stage: "website-intake"
       };
-      setStatus("正在提交到公司后台。", "");
+        setStatus("正在提交到公司共享后台。", "");
       try {
         const response = await fetch(`${apiOrigin}/api/applications`, {
           method: "POST",
@@ -91,7 +103,7 @@
         });
         const result = await response.json();
         if (!response.ok || !result.success) throw new Error(result.error || `HTTP ${response.status}`);
-        setStatus(`需求已进入后台，编号 ${result.application.code}。`, "is-success");
+        setStatus(`需求已进入共享后台，编号 ${result.application.code}。`, "is-success");
         form.reset();
         setLine(businessLine);
       } catch (error) {
@@ -102,6 +114,6 @@
   }
 
   document.querySelectorAll(".nav-link-live-admin").forEach((node) => {
-    node.setAttribute("href", adminOrigin ? adminOrigin.replace(/\/$/, "") + "/admin/" : "admin/");
+    node.setAttribute("href", adminOrigin ? adminOrigin.replace(/\/$/, "") + "/login" : "admin/");
   });
 })();
